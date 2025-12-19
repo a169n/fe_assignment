@@ -7,13 +7,19 @@ import Panel from "./ui/Panel";
 import Badge from "./ui/Badge";
 import useProjectManager from "../hooks/useProjectManager";
 import useUiStore from "../store/uiStore";
+import { useTheme } from "../context/ThemeContext";
 
-const TaskBoard = ({ projectId }) => {
+type TaskBoardProps = {
+  projectId?: string;
+};
+
+const TaskBoard = ({ projectId }: TaskBoardProps) => {
+  const { tokens, theme } = useTheme();
+  const isDark = theme === "dark";
   const { selectedProjectId, filter, setFilter, setProject } = useUiStore();
   const effectiveProjectId = projectId ?? selectedProjectId;
-  const { project, tasksByStatus, addTask, deleteTask, moveTask } = useProjectManager(
-    effectiveProjectId
-  );
+  const { project, tasksByStatus, addTask, deleteTask, moveTask } =
+    useProjectManager(effectiveProjectId);
 
   useEffect(() => {
     if (projectId && projectId !== selectedProjectId) {
@@ -28,11 +34,13 @@ const TaskBoard = ({ projectId }) => {
     "in-progress": tasksByStatus["in-progress"].filter((task) =>
       task.title.toLowerCase().includes(filter.toLowerCase())
     ),
-    done: tasksByStatus.done.filter((task) => task.title.toLowerCase().includes(filter.toLowerCase())),
+    done: tasksByStatus.done.filter((task) =>
+      task.title.toLowerCase().includes(filter.toLowerCase())
+    ),
   };
 
   if (!project) {
-    return <div style={{ color: "#fca5a5" }}>Project not found.</div>;
+    return <div style={{ color: tokens.warning }}>Project not found.</div>;
   }
 
   return (
@@ -57,16 +65,23 @@ const TaskBoard = ({ projectId }) => {
               height: "40px",
               width: "40px",
               borderRadius: "12px",
-              background: "linear-gradient(135deg, #38bdf8, #6366f1)",
+              background: `linear-gradient(135deg, ${tokens.accentHighlight}, ${tokens.accentPrimary})`,
               display: "grid",
               placeItems: "center",
               boxShadow: "0 18px 40px rgba(79,70,229,0.45)",
             }}
           >
-            <LightningBoltIcon color="#0b1021" />
+            <LightningBoltIcon color={isDark ? "#0b1021" : "#0f172a"} />
           </div>
           <div>
-            <p style={{ margin: 0, color: "#94a3b8", letterSpacing: "0.05em", fontSize: "12px" }}>
+            <p
+              style={{
+                margin: 0,
+                color: tokens.textSubtle,
+                letterSpacing: "0.05em",
+                fontSize: "12px",
+              }}
+            >
               DIGITAL TWIN ROADMAP
             </p>
             <h1 style={{ margin: 0 }}>{project.name} achievements</h1>
@@ -79,7 +94,7 @@ const TaskBoard = ({ projectId }) => {
               alignItems: "center",
               gap: "8px",
               padding: "10px 12px",
-              background: "#0b1224",
+              background: tokens.surfaceAlt,
             }}
           >
             <MagnifyingGlassIcon />
@@ -90,7 +105,7 @@ const TaskBoard = ({ projectId }) => {
               style={{
                 background: "transparent",
                 border: "none",
-                color: "#e5e7eb",
+                color: tokens.inputText,
                 outline: "none",
                 fontSize: "14px",
               }}
@@ -112,14 +127,24 @@ const TaskBoard = ({ projectId }) => {
           gap: "14px",
         }}
       >
-        <Column status="todo" tasks={filteredTasks.todo} onMove={moveTask} onDelete={deleteTask} />
+        <Column
+          status="todo"
+          tasks={filteredTasks.todo}
+          onMove={moveTask}
+          onDelete={deleteTask}
+        />
         <Column
           status="in-progress"
           tasks={filteredTasks["in-progress"]}
           onMove={moveTask}
           onDelete={deleteTask}
         />
-        <Column status="done" tasks={filteredTasks.done} onMove={moveTask} onDelete={deleteTask} />
+        <Column
+          status="done"
+          tasks={filteredTasks.done}
+          onMove={moveTask}
+          onDelete={deleteTask}
+        />
       </div>
     </div>
   );

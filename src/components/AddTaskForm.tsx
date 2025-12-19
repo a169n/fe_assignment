@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import Button from "./ui/Button";
 import Panel from "./ui/Panel";
+import { useTheme } from "../context/ThemeContext";
 
-const AddTaskForm = ({ onSubmit }) => {
+type AddTaskFormProps = {
+  onSubmit: (payload: { title: string; description: string }) => void;
+};
+
+const AddTaskForm = ({ onSubmit }: AddTaskFormProps) => {
+  const { tokens } = useTheme();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!title.trim()) return;
     onSubmit({ title: title.trim(), description: description.trim() });
@@ -31,10 +37,10 @@ const AddTaskForm = ({ onSubmit }) => {
             placeholder="New learning outcome"
             style={{
               flex: 1,
-              background: "#0b1224",
-              color: "#e5e7eb",
+              background: tokens.inputBg,
+              color: tokens.inputText,
               borderRadius: "12px",
-              border: "1px solid rgba(255,255,255,0.06)",
+              border: `1px solid ${tokens.softBorder}`,
               padding: "12px",
               fontSize: "15px",
             }}
@@ -50,10 +56,10 @@ const AddTaskForm = ({ onSubmit }) => {
           rows={3}
           style={{
             width: "100%",
-            background: "#0b1224",
-            color: "#e5e7eb",
+            background: tokens.inputBg,
+            color: tokens.inputText,
             borderRadius: "12px",
-            border: "1px solid rgba(255,255,255,0.06)",
+            border: `1px solid ${tokens.softBorder}`,
             padding: "12px",
             fontSize: "14px",
             resize: "vertical",

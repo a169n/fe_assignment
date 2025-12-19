@@ -1,10 +1,29 @@
 import { useCallback, useContext, useMemo } from "react";
+import type { Dispatch } from "react";
 import ProjectContext from "../context/ProjectContext";
+import type {
+  ProjectAction,
+  ProjectState,
+  Task,
+  TaskStatus,
+} from "../types/projects";
 
-const statusOrder = ["todo", "in-progress", "done"];
+type MoveDirection = "forward" | "backward";
 
-const useProjectManager = (projectId) => {
-  const context = useContext(ProjectContext);
+interface AddTaskPayload {
+  title: string;
+  description: string;
+}
+
+type TasksByStatus = Record<TaskStatus, Task[]>;
+
+const statusOrder: TaskStatus[] = ["todo", "in-progress", "done"];
+
+const useProjectManager = (projectId: string) => {
+  const context = useContext(ProjectContext) as {
+    state: ProjectState;
+    dispatch: Dispatch<ProjectAction>;
+  } | null;
 
   if (!context) {
     throw new Error("useProjectManager must be used within a ProjectProvider");
@@ -18,7 +37,7 @@ const useProjectManager = (projectId) => {
   );
 
   const addTask = useCallback(
-    ({ title, description }) => {
+    ({ title, description }: AddTaskPayload) => {
       const id = crypto.randomUUID();
       dispatch({
         type: "ADD_TASK",
@@ -37,7 +56,7 @@ const useProjectManager = (projectId) => {
   );
 
   const deleteTask = useCallback(
-    (taskId) => {
+    (taskId: string) => {
       dispatch({
         type: "DELETE_TASK",
         payload: { projectId, taskId },
@@ -47,11 +66,12 @@ const useProjectManager = (projectId) => {
   );
 
   const moveTask = useCallback(
-    (taskId, direction) => {
+    (taskId: string, direction: MoveDirection) => {
       const task = project?.tasks.find((current) => current.id === taskId);
       if (!task) return;
       const currentIndex = statusOrder.indexOf(task.status);
-      const nextIndex = direction === "forward" ? currentIndex + 1 : currentIndex - 1;
+      const nextIndex =
+        direction === "forward" ? currentIndex + 1 : currentIndex - 1;
       const nextStatus = statusOrder[nextIndex];
       if (!nextStatus) return;
       dispatch({
@@ -62,8 +82,8 @@ const useProjectManager = (projectId) => {
     [dispatch, project?.tasks, projectId]
   );
 
-  const tasksByStatus = useMemo(() => {
-    const mapping = {
+  const tasksByStatus: TasksByStatus = useMemo(() => {
+    const mapping: TasksByStatus = {
       todo: [],
       "in-progress": [],
       done: [],

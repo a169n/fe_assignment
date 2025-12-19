@@ -1,30 +1,44 @@
 import React, { createContext, useEffect, useMemo, useReducer } from "react";
+import type {
+  ProjectAction,
+  ProjectState,
+  TaskStatus,
+} from "../types/projects";
 
-const ProjectContext = createContext();
+interface ProjectContextValue {
+  state: ProjectState;
+  dispatch: React.Dispatch<ProjectAction>;
+}
 
-const defaultState = {
+const ProjectContext = createContext<ProjectContextValue | null>(null);
+
+const defaultState: ProjectState = {
   projects: [
     {
       id: "p1",
       name: "Frontend",
-      description: "Build explainable dashboards that keep instructors aligned with each learner twin.",
+      description:
+        "Build explainable dashboards that keep instructors aligned with each learner twin.",
       tasks: [
         {
           id: "t1",
           title: "Prototype explainable insights",
-          description: "Draft UI to highlight how the AI interprets student analytics.",
+          description:
+            "Draft UI to highlight how the AI interprets student analytics.",
           status: "todo",
         },
         {
           id: "t2",
           title: "Map outcomes to skills",
-          description: "Link outcomes to digital twin skill nodes for recommendations.",
+          description:
+            "Link outcomes to digital twin skill nodes for recommendations.",
           status: "in-progress",
         },
         {
           id: "t3",
           title: "Review accessibility",
-          description: "Ensure dashboard is usable with keyboard and screen readers.",
+          description:
+            "Ensure dashboard is usable with keyboard and screen readers.",
           status: "done",
         },
       ],
@@ -32,24 +46,28 @@ const defaultState = {
     {
       id: "p2",
       name: "Data pipelines",
-      description: "Harden the ingestion, labeling, and explainability layers powering digital twins.",
+      description:
+        "Harden the ingestion, labeling, and explainability layers powering digital twins.",
       tasks: [
         {
           id: "t4",
           title: "Stitch LMS + SIS signals",
-          description: "Normalize grade, attendance, and engagement feeds for attribution.",
+          description:
+            "Normalize grade, attendance, and engagement feeds for attribution.",
           status: "in-progress",
         },
         {
           id: "t5",
           title: "Publish feature catalog",
-          description: "Document explainable features with lineage and QA expectations.",
+          description:
+            "Document explainable features with lineage and QA expectations.",
           status: "todo",
         },
         {
           id: "t6",
           title: "Twin drift alarms",
-          description: "Alert analysts when models deviate from expected learner behaviors.",
+          description:
+            "Alert analysts when models deviate from expected learner behaviors.",
           status: "todo",
         },
       ],
@@ -59,7 +77,7 @@ const defaultState = {
 
 const LOCAL_STORAGE_KEY = "learning-platform-projects";
 
-const reducer = (state, action) => {
+const reducer = (state: ProjectState, action: ProjectAction): ProjectState => {
   switch (action.type) {
     case "ADD_TASK": {
       const { projectId, task } = action.payload;
@@ -110,7 +128,7 @@ const reducer = (state, action) => {
   }
 };
 
-const readPersistedState = () => {
+const readPersistedState = (): ProjectState => {
   if (typeof window === "undefined") {
     return defaultState;
   }
@@ -118,7 +136,13 @@ const readPersistedState = () => {
   try {
     const stored = window.localStorage.getItem(LOCAL_STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored) as ProjectState;
+      const hasStatuses = parsed.projects.every((project) =>
+        project.tasks.every((task) =>
+          ["todo", "in-progress", "done"].includes(task.status as TaskStatus)
+        )
+      );
+      return hasStatuses ? parsed : defaultState;
     }
     return defaultState;
   } catch (error) {
@@ -127,7 +151,11 @@ const readPersistedState = () => {
   }
 };
 
-export const ProjectProvider = ({ children }) => {
+export const ProjectProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [state, dispatch] = useReducer(reducer, defaultState);
 
   useEffect(() => {
@@ -149,7 +177,9 @@ export const ProjectProvider = ({ children }) => {
     [state]
   );
 
-  return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;
+  return (
+    <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>
+  );
 };
 
 export default ProjectContext;

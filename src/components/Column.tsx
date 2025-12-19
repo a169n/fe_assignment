@@ -1,16 +1,30 @@
 import React from "react";
-import { ArrowLeftIcon, ArrowRightIcon, TrashIcon } from "@radix-ui/react-icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 import Button from "./ui/Button";
 import Panel from "./ui/Panel";
 import Task from "./Task";
+import { useTheme } from "../context/ThemeContext";
+import type { Task as TaskType, TaskStatus } from "../types/projects";
 
-const statusTitles = {
+const statusTitles: Record<TaskStatus, string> = {
   todo: "Backlog",
   "in-progress": "In Progress",
   done: "Done",
 };
 
-const Column = ({ status, tasks, onMove, onDelete }) => {
+type ColumnProps = {
+  status: TaskStatus;
+  tasks: TaskType[];
+  onMove: (taskId: string, direction: "forward" | "backward") => void;
+  onDelete: (taskId: string) => void;
+};
+
+const Column = ({ status, tasks, onMove, onDelete }: ColumnProps) => {
+  const { tokens } = useTheme();
   return (
     <Panel
       style={{
@@ -30,17 +44,25 @@ const Column = ({ status, tasks, onMove, onDelete }) => {
         }}
       >
         <div>
-          <div style={{ color: "#94a3b8", fontSize: "12px", letterSpacing: "0.08em" }}>
+          <div
+            style={{
+              color: tokens.textSubtle,
+              fontSize: "12px",
+              letterSpacing: "0.08em",
+            }}
+          >
             {status.toUpperCase()}
           </div>
-          <h3 style={{ margin: 0, marginTop: "4px", fontSize: "18px" }}>{statusTitles[status]}</h3>
+          <h3 style={{ margin: 0, marginTop: "4px", fontSize: "18px" }}>
+            {statusTitles[status]}
+          </h3>
         </div>
         <div
           style={{
-            background: "rgba(255,255,255,0.04)",
+            background: tokens.navActiveBg,
             padding: "8px 10px",
             borderRadius: "10px",
-            border: "1px solid rgba(255,255,255,0.05)",
+            border: tokens.navActiveBorder,
             fontWeight: 700,
             fontSize: "14px",
           }}
@@ -54,7 +76,13 @@ const Column = ({ status, tasks, onMove, onDelete }) => {
             key={task.id}
             task={task}
             actions={
-              <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  justifyContent: "flex-end",
+                }}
+              >
                 <Button
                   aria-label="move left"
                   variant="ghost"
@@ -77,7 +105,11 @@ const Column = ({ status, tasks, onMove, onDelete }) => {
                   aria-label="delete"
                   variant="ghost"
                   onClick={() => onDelete(task.id)}
-                  style={{ padding: "8px", borderRadius: "10px", color: "#fca5a5" }}
+                  style={{
+                    padding: "8px",
+                    borderRadius: "10px",
+                    color: tokens.warning,
+                  }}
                 >
                   <TrashIcon />
                 </Button>
@@ -86,7 +118,13 @@ const Column = ({ status, tasks, onMove, onDelete }) => {
           />
         ))}
         {tasks.length === 0 && (
-          <div style={{ color: "#94a3b8", fontSize: "14px", textAlign: "center" }}>
+          <div
+            style={{
+              color: tokens.textSubtle,
+              fontSize: "14px",
+              textAlign: "center",
+            }}
+          >
             Nothing here yet.
           </div>
         )}
