@@ -1,0 +1,41 @@
+# Ignore build artifacts
+build
+dist
+
+# Ignore test coverage reports
+coverage
+
+# Ignore node_modules directory
+node_modules
+
+# Ignore Visual Studio Code settings
+.vscode
+
+# Ignore editor-specific files
+*.swp
+*.swo
+*.bak
+
+# Ignore compiled files
+*.min.js
+*.min.css
+
+# Ignore log files
+*.log
+
+# Ignore temporary files
+*.tmp
+
+# Ignore package lock files
+package-lock.json
+yarn.lock
+
+# Ignore environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Ignore generated files
+generated
