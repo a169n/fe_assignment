@@ -62,6 +62,16 @@ Light and dark palettes are defined in `src/App.tsx` and passed to Stepper; down
 - `npm run format` – format with Prettier.
 - `npm run format:check` – verify formatting without writing changes.
 
+## Implementation Report
+
+- Goal: demonstrate a compound Stepper with render props, optional steps, theme awareness, and keyboard-first accessibility.
+- Architecture: `src/components/Stepper.tsx` houses context-driven compound parts; `src/App.tsx` wires the demo flow, validation, and dynamic toggles; `src/main.tsx` is the React entry.
+- UX/A11y: tab semantics, progressbar exposure, disabled handling, and arrow/Home/End/Enter/Space key support are implemented per ARIA patterns.
+- Theming: light/dark token sets live in `App.tsx` and are passed into the Stepper via the `appearance` prop so downstream controls share surfaces, borders, and text colors.
+- State/logic: steps expose render props with navigation helpers; compliance step can be toggled while keeping indexes and completion in sync; validation guards required fields and ranges.
+- Data preview: review step summarizes collected inputs including tags, risk selections, and notes for quick inspection.
+- Testing: not run in this workspace session.
+
 ## Extension Ideas
 
 - Persist theme choice to localStorage and allow custom palettes.
